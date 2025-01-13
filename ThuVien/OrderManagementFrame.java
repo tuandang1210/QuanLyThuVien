@@ -1,4 +1,4 @@
-package ThuVien;
+
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -12,6 +12,9 @@ public class OrderManagementFrame extends JFrame {
     private DefaultTableModel ordermodel;
     private JButton Search, openAdminFrameB, Returned;
     private JTextField searchfield;
+    private int clickCount = 0;
+    private static final int DOUBLE_CLICK_THRESHOLD = 500;
+    private static Timer resetTimer;
 
     public OrderManagementFrame() {
         setTitle("Order Management");
@@ -74,7 +77,29 @@ public class OrderManagementFrame extends JFrame {
         Search.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                searchAcceptedOrders();
+                clickCount++;
+
+                if (clickCount == 1) {
+                    if (resetTimer != null) {
+                        resetTimer.stop();
+                    }
+                    resetTimer = new Timer(DOUBLE_CLICK_THRESHOLD, evt -> {
+                        clickCount = 0;
+                    });
+                    resetTimer.setRepeats(false);
+                    resetTimer.start();
+                }
+
+                if (clickCount == 1) {
+                    searchAcceptedOrders();
+                } else if (clickCount == 2) {
+                    ordermodel.setRowCount(0);
+                    loadAcceptedOrders();
+                    clickCount = 0;
+                    if (resetTimer != null) {
+                        resetTimer.stop();
+                    }
+                }
             }
         });
 
